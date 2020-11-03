@@ -21,7 +21,7 @@ class myWin:
         self.btn_ok.bind('<Button-1>', self.ok)
         self.lbl_progress = Label(win, text="Progress")
         self.txt_progress = Text(win, height=50, width=63)
-        self.btn_quit = Button(win, text='Quit', command=self.quit)
+        self.btn_quit = Button(win, text='Quit', command=lambda: win.destroy())
         # set position
         self.lbl_link.place(x=50, y=50)
         self.txt_link.place(x=150, y=50)
@@ -41,9 +41,6 @@ class myWin:
         folder_selected = filedialog.askdirectory()
         self.txt_save.delete(0, END)
         self.txt_save.insert(END, str(folder_selected)+"/")
-        
-    def quit(self):
-        pass
     
     def ok(self, event):
         # Check link
