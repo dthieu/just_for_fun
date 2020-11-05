@@ -4,15 +4,9 @@ Created on Wed Nov  4 00:32:42 2020
 
 @author: Hieu Dang
 """
-# https://www.youtube.com/watch?v=R2ypCXb7Go4
-
-import tkinter as tk
 from tkinter import ttk
 from tkinter import *
-from pytube import YouTube 
-from tkinter import messagebox, filedialog
-import unidecode
-import re
+from pytube import YouTube
 from threading import Thread
 
 file_size = 0
@@ -28,15 +22,24 @@ class myWin:
             command=self.getSolution)
         
         self.lbl_selectSolution = Label(win, text="Select solution:")
-        self.cbx_chooseSolution = ttk.Combobox(win, values=['720p'], state="readonly", width=7)
-        self.lbl_save       = Label(win, text="Save to: ")
-        self.txt_save       = Entry(win, width=60)
-        self.txt_save.insert(END, "D:/")
-        self.btn_save       = Button(win, text="...", command=self.select_location)
-        self.btn_download   = Button(win, text="-> Download <-", command=lambda: Thread(target=self.ok).start())
-        # self.btn_download.bind('<Button-1>', lambda: Thread(target=self.ok).start())
-        self.btn_quit = Button(win, text='Quit', command=lambda: win.destroy())
-        self.pgsbar_progress = ttk.Progressbar(win, length=360, style='text.Horizontal.TProgressbar')
+        self.cbx_chooseSolution = ttk.Combobox(win, 
+                                               values=['360p'], 
+                                               state="readonly", 
+                                               width=7)
+        self.lbl_save           = Label(win, text="Save to: ")
+        self.txt_save           = Entry(win, width=60)
+        self.btn_save           = Button(win, 
+                                         text="Select", 
+                                         command=self.select_location)
+        self.btn_download       = Button(win, 
+                                         text="-> Download <-", 
+                                         command=lambda: Thread(target=self.ok).start())
+        self.btn_quit           = Button(win, 
+                                         text='Quit', 
+                                         command=lambda: win.destroy())
+        self.pgsbar_progress    = ttk.Progressbar(win, 
+                                                  length=360, 
+                                                  style='text.Horizontal.TProgressbar')
         self.pgsbar_progress['maximum'] = 100
         self.style = ttk.Style(win)
         self.style.layout('text.Horizontal.TProgressbar',
@@ -47,6 +50,7 @@ class myWin:
               ('Horizontal.Progressbar.label', {'sticky': ''})])
               # , lightcolor=None, bordercolo=None, darkcolor=None
         self.style.configure('text.Horizontal.TProgressbar', text='0 %')
+        self.txt_save.insert(END, "D:/")
         
         # set position
         self.lbl_link.place(x=50, y=50)
