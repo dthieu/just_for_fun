@@ -251,38 +251,40 @@ class TabDownload(tk.Frame):
         # MyMenu.lbl_status.config(text="Loading streams. Please wait...")
         try:
             TabDownload.my_yt = YouTube(self.txt_link.get())
-            # load thumbnail
-            thumbnail_url = TabDownload.my_yt.thumbnail_url
-            
-            if thumbnail_url != "" and "http" in thumbnail_url:
-                filename  = re.findall('([-\w]+\.(?:jpg|gif|png|jpeg|tiff|raw))', thumbnail_url)[0]
-                # download image
-                self.load_thumbnail(thumbnail_url, filename)
-                # set image into canvas thumbnail
-                thumbnail   = Image.open(filename)
-                width_rate  = thumbnail.width / self.cv_thumbnail.winfo_width()
-                height_rate = thumbnail.height / self.cv_thumbnail.winfo_height()
-                thumbnail   = thumbnail.resize((int(thumbnail.width / width_rate), \
-                                            int(thumbnail.height/ height_rate)), \
-                                            Image.ANTIALIAS)
-                self.thumbnail_img = ImageTk.PhotoImage(thumbnail)
-                self.cv_thumbnail.create_image(self.cv_thumbnail.winfo_width()//2, \
-                                           self.cv_thumbnail.winfo_height()//2, \
-                                           image=self.thumbnail_img)
-            self.lbl_vidtitle.config(text=f"{TabDownload.my_yt.title}")
-            self.lbl_vidduration.config(text=f"Duration: {str(timedelta(seconds=TabDownload.my_yt.length))}")
-            # register callback
-            TabDownload.my_yt.register_on_complete_callback(self.on_done)
-            TabDownload.my_yt.register_on_progress_callback(self.on_progress)
-            
-            TabDownload.list_streams_video = TabDownload.my_yt.streams # All streams 
-            
-            # Add info video/audio into stream list
-            for stream in TabDownload.list_streams_video:
-                self.lstbox_streams.insert(tk.END, str(stream)[1:-2])
         except:
             messagebox.showerror("Link error", "Please check your internet connection and try again!")
             return
+        # load thumbnail
+        thumbnail_url = TabDownload.my_yt.thumbnail_url
+        
+        if thumbnail_url != "" and "http" in thumbnail_url:
+            filename  = re.findall('([-\w]+\.(?:jpg|gif|png|jpeg|tiff|raw))', thumbnail_url)[0]
+
+            # download image
+            self.load_thumbnail(thumbnail_url, filename)
+            # set image into canvas thumbnail
+            thumbnail   = Image.open(filename)
+            width_rate  = thumbnail.width / self.cv_thumbnail.winfo_width()
+            height_rate = thumbnail.height / self.cv_thumbnail.winfo_height()
+            thumbnail   = thumbnail.resize((int(thumbnail.width / width_rate), \
+                                        int(thumbnail.height/ height_rate)), \
+                                        Image.ANTIALIAS)
+            self.thumbnail_img = ImageTk.PhotoImage(thumbnail)
+            self.cv_thumbnail.create_image(self.cv_thumbnail.winfo_width()//2, \
+                                       self.cv_thumbnail.winfo_height()//2, \
+                                       image=self.thumbnail_img)
+        self.lbl_vidtitle.config(text=f"{TabDownload.my_yt.title}")
+        self.lbl_vidduration.config(text=f"Duration: {str(timedelta(seconds=TabDownload.my_yt.length))}")
+        # register callback
+        TabDownload.my_yt.register_on_complete_callback(self.on_done)
+        TabDownload.my_yt.register_on_progress_callback(self.on_progress)
+        
+        TabDownload.list_streams_video = TabDownload.my_yt.streams # All streams 
+        
+        # Add info video/audio into stream list
+        for stream in TabDownload.list_streams_video:
+            self.lstbox_streams.insert(tk.END, str(stream)[1:-2])
+        
         # MyMenu.lbl_status.config(text="Loaded streams successfully!")
     
     def on_progress(self, stream, chunk, bytes_remaining):
