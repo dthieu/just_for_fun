@@ -157,8 +157,7 @@ class TabDownload(tk.Frame):
         self.txt_audio_name.grid(row=2, column=1, sticky="e", padx=2, pady=2)
         
         # Init value
-        # self.txt_link.insert(tk.END, "https://www.youtube.com/watch?v=Z_yFB8wJSWA") # For debug
-        self.txt_link.insert(tk.END, "https://www.youtube.com/watch?v=vp-Lk0bSppM") # For debug
+        self.txt_link.insert(tk.END, "https://www.youtube.com/watch?v=Z_yFB8wJSWA") # For debug
         self.txt_save.insert(tk.END, os.path.join(os.path.expanduser('~'), "Downloads\Video"))
         self.txt_audio_name.insert(tk.END, "Untitle.mp3")
         
@@ -217,7 +216,9 @@ class TabDownload(tk.Frame):
             url.urlretrieve(link, filename)
         except:
             messagebox.showinfo("Error", message="Cannot load thumbnail!")
-    
+            return -1
+        return 0
+
     def cancel(self, event=None):
         TabDownload.list_streams_video  = []
         TabDownload.my_yt               = None
@@ -252,7 +253,7 @@ class TabDownload(tk.Frame):
         try:
             TabDownload.my_yt = YouTube(self.txt_link.get())
         except:
-            messagebox.showerror("Link error", "Please check your internet connection and try again!")
+            messagebox.showerror("Error", "Link error or video is unavailable!")
             return
         # load thumbnail
         thumbnail_url = TabDownload.my_yt.thumbnail_url
@@ -261,26 +262,44 @@ class TabDownload(tk.Frame):
             filename  = re.findall('([-\w]+\.(?:jpg|gif|png|jpeg|tiff|raw))', thumbnail_url)[0]
 
             # download image
-            self.load_thumbnail(thumbnail_url, filename)
-            # set image into canvas thumbnail
-            thumbnail   = Image.open(filename)
-            width_rate  = thumbnail.width / self.cv_thumbnail.winfo_width()
-            height_rate = thumbnail.height / self.cv_thumbnail.winfo_height()
-            thumbnail   = thumbnail.resize((int(thumbnail.width / width_rate), \
-                                        int(thumbnail.height/ height_rate)), \
-                                        Image.ANTIALIAS)
-            self.thumbnail_img = ImageTk.PhotoImage(thumbnail)
-            self.cv_thumbnail.create_image(self.cv_thumbnail.winfo_width()//2, \
-                                       self.cv_thumbnail.winfo_height()//2, \
-                                       image=self.thumbnail_img)
-        self.lbl_vidtitle.config(text=f"{TabDownload.my_yt.title}")
-        self.lbl_vidduration.config(text=f"Duration: {str(timedelta(seconds=TabDownload.my_yt.length))}")
+            if self.load_thumbnail(thumbnail_url, filename) == 0:
+                # set image into canvas thumbnail
+                thumbnail   = Image.open(filename)
+                width_rate  = thumbnail.width / self.cv_thumbnail.winfo_width()
+                height_rate = thumbnail.height / self.cv_thumbnail.winfo_height()
+                thumbnail   = thumbnail.resize((int(thumbnail.width / width_rate), \
+                                            int(thumbnail.height/ height_rate)), \
+                                            Image.ANTIALIAS)
+                self.thumbnail_img = ImageTk.PhotoImage(thumbnail)
+                self.cv_thumbnail.create_image(self.cv_thumbnail.winfo_width()//2, \
+                                        self.cv_thumbnail.winfo_height()//2, \
+                                        image=self.thumbnail_img)
+        # Get video title
+        try:
+            self.lbl_vidtitle.config(text=f"{TabDownload.my_yt.title}")
+        except Exception as err:
+            messagebox.showerror("Error: Cannot get video title! Detail as below", str(err))
+            self.lbl_vidtitle.config(text="Untitle")
+            pass
+        # Get video duration
+        try:
+            self.lbl_vidduration.config(text=f"Duration: {str(timedelta(seconds=TabDownload.my_yt.length))}")
+        except Exception as err:
+            messagebox.showerror("Error: Cannot get video duration! Detail as below", str(err))
+            self.lbl_vidduration.config(text="Unknow!")
+            pass
+        
         # register callback
         TabDownload.my_yt.register_on_complete_callback(self.on_done)
         TabDownload.my_yt.register_on_progress_callback(self.on_progress)
         
-        TabDownload.list_streams_video = TabDownload.my_yt.streams # All streams 
-        
+        # Get list of streams
+        try:
+            TabDownload.list_streams_video = TabDownload.my_yt.streams # All streams 
+        except Exception as err:
+            messagebox.showerror("Error: Cannot get list of video quality! Detail as below", str(err))
+            return # exit
+
         # Add info video/audio into stream list
         for stream in TabDownload.list_streams_video:
             self.lstbox_streams.insert(tk.END, str(stream)[1:-2])
